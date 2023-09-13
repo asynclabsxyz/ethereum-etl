@@ -67,6 +67,7 @@ setup(
     entry_points={
         'console_scripts': [
             'ethereumetl=ethereumetl.cli:cli',
+            "suietl=suietl.cli:cli",
         ],
     },
     project_urls={
