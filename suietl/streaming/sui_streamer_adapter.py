@@ -1,4 +1,5 @@
 import json
+import logging
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.in_memory_item_exporter import InMemoryItemExporter
@@ -7,6 +8,8 @@ from suietl.enumeration.entity_type import EntityType
 from suietl.jobs.export_checkpoints_job import ExportCheckpointsJob
 from suietl.jobs.export_transactions_job import ExportTransactionsJob
 from suietl.json_rpc_requests import generate_sui_get_latest_checkpoint_sequence_number
+from suietl.streaming.sui_item_id_calculator import SuiItemIdCalculator
+from suietl.streaming.sui_item_timestamp_calculator import SuiItemTimestampCalculator
 from suietl.utils import rpc_response_to_result
 
 
@@ -24,6 +27,8 @@ class SuiStreamerAdapter:
         self.batch_size = batch_size
         self.max_workers = max_workers
         self.entity_types = entity_types
+        self.item_id_calculator = SuiItemIdCalculator()
+        self.item_timestamp_calculator = SuiItemTimestampCalculator()
 
     def open(self):
         self.item_exporter.open()
@@ -58,16 +63,7 @@ class SuiStreamerAdapter:
         #     else []
         # )
 
-        # logging.info("Exporting with " + type(self.item_exporter).__name__)
-
-        # all_items = (
-        #     sort_by(enriched_blocks, "number")
-        #     + sort_by(enriched_transactions, ("block_number", "transaction_index"))
-        #     + sort_by(enriched_logs, ("block_number", "log_index"))
-        # )
-
-        # self.calculate_item_ids(all_items)
-        # self.calculate_item_timestamps(all_items)
+        logging.info("Exporting with " + type(self.item_exporter).__name__)
 
         all_items = (
             sort_by([checkpoint], ("sequence_number",))
@@ -75,6 +71,9 @@ class SuiStreamerAdapter:
             + sort_by(effects, ("checkpoint_number", "digest"))
             + sort_by(events, ("checkpoint_number", "digest", "id.event_seq"))
         )
+        
+        self.calculate_item_ids(all_items)
+        self.calculate_item_timestamps(all_items)
 
         self.item_exporter.export_items(all_items)
 
@@ -119,6 +118,14 @@ class SuiStreamerAdapter:
             )
 
         raise ValueError("Unexpected entity type " + entity_type)
+
+    def calculate_item_ids(self, items):
+        for item in items:
+            item['item_id'] = self.item_id_calculator.calculate(item)
+
+    def calculate_item_timestamps(self, items):
+        for item in items:
+            item['item_timestamp'] = self.item_timestamp_calculator.calculate(item)
 
     def close(self):
         self.item_exporter.close()
