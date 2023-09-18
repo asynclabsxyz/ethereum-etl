@@ -29,8 +29,7 @@ class SuiTransactionBlockEventsMapper(object):
     def json_dict_to_events(self, json_dict):
         checkpoint_number = to_int_or_none(json_dict.get("checkpoint"))
         transaction_digest = json_dict.get("digest")
-        # naman, this timestamp is present in event too, need to check if they match
-        # timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
 
         json_events_dict = json_dict.get("events", [])
         events = []
@@ -38,13 +37,13 @@ class SuiTransactionBlockEventsMapper(object):
             event = SuiTransactionBlockEvent()
             event.checkpoint_number = checkpoint_number
             event.transaction_digest = transaction_digest
-            event.timestamp_ms = to_int_or_none(json_event_dict.get("timestampMs"))
+            event.timestamp_ms = timestamp_ms
             event.id = self.parse_event_id(json_event_dict.get("id"))
             event.package_id = json_event_dict.get("packageId")
             event.transaction_module = json_event_dict.get("transactionModule")
             event.sender = json_event_dict.get("sender")
             event.event_type = json_event_dict.get("type")
-            event.parsed_json = json_event_dict.get("parsedJson")
+            event.parsed_json = str(json_event_dict.get("parsedJson"))
             event.bcs = json_event_dict.get("bcs")
             events.append(event)
 

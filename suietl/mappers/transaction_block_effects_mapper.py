@@ -94,12 +94,35 @@ class SuiTransactionBlockEffectsMapper(object):
         return {
             # naman, there are too may different types to easily map them
             # https://github.com/MystenLabs/sui/blob/da0d7881e366f78abb43b7b27661b50c8083c079/sdk/typescript/src/types/common.ts#L38
-            "owner": owned_object.get("owner"),
+            "owner": self.parse_owner(owned_object.get("owner")),
             "reference": {
                 "object_id": owned_object.get("reference").get("objectId"),
                 "version": owned_object.get("reference").get("version"),
                 "digest": owned_object.get("reference").get("digest"),
             },
+        }
+    
+    # https://github.com/MystenLabs/sui/blob/main/crates/sui-types/src/object.rs#L533
+    def parse_owner(self, owner):
+        if owner is None:
+            return None
+        if isinstance(owner, str):
+            if owner == "Immutable":
+                return {
+                    "immutable": "immutable"
+                }
+            return None
+        return {
+            "address_owner": owner.get("AddressOwner"),
+            "object_owner": owner.get("ObjectOwner"),
+            "shared": owner.get("Shared"),
+        }
+    
+    def parse_object_owner(self, object_owner):
+        if object_owner is None:
+            return None
+        return {
+
         }
 
     def effects_to_dict(self, effects):

@@ -31,18 +31,106 @@ class SuiTransactionMapper(object):
         transaction.checkpoint_number = to_int_or_none(json_dict.get("checkpoint"))
         transaction.digest = json_dict.get("digest")
         transaction.timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        transaction.balance_changes = self.parse_balance_changes(json_dict.get("balanceChanges", []))
+        transaction.object_changes = self.parse_object_changes(json_dict.get("objectChanges", []))
 
         json_transaction_dict = json_dict.get("transaction")
         transaction.tx_signatures = json_transaction_dict.get("txSignatures")
 
         json_transaction_data_dict = json_transaction_dict.get("data")
-        transaction.transaction = json_transaction_data_dict.get("transaction")
+        # naman, there are too may different types of transactions to easily map them
+        # https://github.com/MystenLabs/sui/blob/main/crates/sui-json-rpc-types/src/sui_transaction.rs#L277
+        transaction.transaction = str(json_transaction_data_dict.get("transaction"))
         transaction.sender = json_transaction_data_dict.get("sender")
         transaction.gas_data = self.parse_gas_data(
             json_transaction_data_dict.get("gasData")
         )
 
         return transaction
+    
+    def parse_balance_changes(self, balance_changes):
+        return [
+            {
+                "owner": self.parse_owner(balance_change.get("owner")),
+                "coin_type": balance_change.get("coinType"),
+                "amount": balance_change.get("amount"),
+            } for balance_change in balance_changes
+        ]
+    
+    # https://github.com/MystenLabs/sui/blob/main/crates/sui-types/src/object.rs#L533
+    def parse_owner(self, owner):
+        if owner is None:
+            return None
+        if isinstance(owner, str):
+            if owner == "Immutable":
+                return {
+                    "immutable": "immutable"
+                }
+            return None
+        return {
+            "address_owner": owner.get("AddressOwner"),
+            "object_owner": owner.get("ObjectOwner"),
+            "shared": owner.get("Shared"),
+        }
+    
+    def parse_object_changes(self, object_changes):
+        parsed_by_type = {}
+        for object_change in object_changes:
+            type = object_change.get("type")
+            if type not in parsed_by_type:
+                parsed_by_type[type] = []
+            parsed_object_change = {}
+            if type == "published":
+                parsed_object_change = {
+                    "package_id": object_change.get("packageId"),
+                    "version": object_change.get("version"),
+                    "digest": object_change.get("digest"),
+                    "modules": object_change.get("modules"),
+                }
+            elif type == "transferred":
+                parsed_object_change = {
+                    "sender": object_change.get("sender"),
+                    "recipient": self.parse_owner(object_change.get("recipient")),
+                    "object_type": object_change.get("objectType"),
+                    "object_id": object_change.get("objectId"),
+                    "version": object_change.get("version"),
+                    "digest": object_change.get("digest"),
+                }
+            elif type == "mutated":
+                parsed_object_change = {
+                    "sender": object_change.get("sender"),
+                    "owner": self.parse_owner(object_change.get("recipient")),
+                    "object_type": object_change.get("objectType"),
+                    "object_id": object_change.get("objectId"),
+                    "version": object_change.get("version"),
+                    "previous_version": object_change.get("previousVersion"),
+                    "digest": object_change.get("digest"),
+                }
+            elif type == "deleted":
+                parsed_object_change = {
+                    "sender": object_change.get("sender"),
+                    "object_type": object_change.get("objectType"),
+                    "object_id": object_change.get("objectId"),
+                    "version": object_change.get("version"),
+                }
+            elif type == "wrapped":
+                parsed_object_change = {
+                    "sender": object_change.get("sender"),
+                    "object_type": object_change.get("objectType"),
+                    "object_id": object_change.get("objectId"),
+                    "version": object_change.get("version"),
+                }
+            elif type == "created":
+                parsed_object_change = {
+                    "sender": object_change.get("sender"),
+                    "owner": self.parse_owner(object_change.get("recipient")),
+                    "object_type": object_change.get("objectType"),
+                    "object_id": object_change.get("objectId"),
+                    "version": object_change.get("version"),
+                    "digest": object_change.get("digest"),
+                }
+            parsed_by_type[type].append(parsed_object_change)
+        return parsed_by_type
 
     def parse_gas_data(self, gas_data):
         payments = gas_data.get("payment")
@@ -55,10 +143,13 @@ class SuiTransactionMapper(object):
                 }
                 for payment in payments
             ],
-            "owner": to_int_or_none(gas_data.get("storageCost")),
+            "owner": gas_data.get("owner"),
             "price": to_int_or_none(gas_data.get("price")),
             "budget": to_int_or_none(gas_data.get("budget")),
         }
+    
+    def parse_transaction(self, transaction):
+        return {}
 
     def transaction_to_dict(self, transaction):
         return {
@@ -70,4 +161,6 @@ class SuiTransactionMapper(object):
             "timestamp_ms": transaction.timestamp_ms,
             "transaction": transaction.transaction,
             "tx_signatures": transaction.tx_signatures,
+            "balance_changes": transaction.balance_changes,
+            "object_changes": transaction.object_changes,
         }

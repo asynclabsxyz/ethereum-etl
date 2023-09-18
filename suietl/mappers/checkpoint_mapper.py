@@ -33,10 +33,9 @@ from ethereumetl.utils import to_int_or_none
 class SuiCheckpointMapper(object):
     def json_dict_to_block(self, json_dict):
         checkpoint = SuiCheckpoint()
-        # naman todo, translate these
-        checkpoint.checkpoint_commitments = []
-        checkpoint.end_of_epoch_data = []
 
+        checkpoint.checkpoint_commitments = self.parse_checkpoint_commitments(json_dict.get("checkpointCommitments", []))
+        checkpoint.end_of_epoch_data = self.parse_end_of_epoch_data(json_dict.get("endOfEpochData"))
         checkpoint.digest = json_dict.get("digest")
         checkpoint.epoch = to_int_or_none(json_dict.get("epoch"))
         checkpoint.epoch_rolling_gas_cost_summary = self.parse_gas_cost_summary(
@@ -52,6 +51,30 @@ class SuiCheckpointMapper(object):
         checkpoint.validator_signature = json_dict.get("validatorSignature")
 
         return checkpoint
+
+    def parse_checkpoint_commitments(self, checkpointCommitments):
+        return [
+            {
+                "digest": checkpointCommitment.get("digest"),
+            } for checkpointCommitment in checkpointCommitments
+        ]
+    
+    def parse_end_of_epoch_data(self, endOfEpochData):
+        if endOfEpochData is None:
+            return None
+        return {
+            "next_epoch_committee": self.parse_committee_members(endOfEpochData.get("nextEpochCommittee", [])),
+            "next_epoch_protocol_version": to_int_or_none(endOfEpochData.get("nextEpochProtocolVersion")),
+            "epoch_commitments": self.parse_checkpoint_commitments(endOfEpochData.get("epochCommitments", []))
+        }
+    
+    def parse_committee_members(self, committeeMembers):
+        return [
+            {
+                "authority_name": committeeMember[0],
+                "stake_unit": committeeMember[1],
+            } for committeeMember in committeeMembers
+        ]
 
     def parse_gas_cost_summary(self, summary):
         return {

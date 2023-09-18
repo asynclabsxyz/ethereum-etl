@@ -23,12 +23,12 @@
 
 class SuiTransaction(object):
     def __init__(self):
+        self.balance_changes = []
         self.checkpoint_number = None
         self.digest = None
         self.sender = None
         self.gas_data = {}
+        self.object_changes = []
         self.timestamp_ms = None
-        # naman, there are too may different types of transactions to easily map them
-        # https://github.com/MystenLabs/sui/blob/main/crates/sui-json-rpc-types/src/sui_transaction.rs#L277
-        self.transaction = {}
+        self.transaction = None
         self.tx_signatures = []
