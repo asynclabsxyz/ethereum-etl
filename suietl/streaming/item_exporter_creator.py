@@ -48,6 +48,19 @@ def create_item_exporter(output):
         # naman, todo, this needs to be custom too because gcs item exporter has a lot
         # of eth primitives built in
         item_exporter = GcsItemExporter(bucket=bucket, path=path)
+    elif item_exporter_type == ItemExporterType.PUBSUB:
+        from blockchainetl.jobs.exporters.google_pubsub_item_exporter import GooglePubSubItemExporter
+        enable_message_ordering = 'sorted' in output or 'ordered' in output
+        item_exporter = GooglePubSubItemExporter(
+            item_type_to_topic_mapping={
+                'checkpoint': output + '.checkpoints',
+                'transaction': output + '.transactions',
+            },
+            message_attributes=('item_id', 'item_timestamp'),
+            batch_max_bytes=1024 * 1024 * 5,
+            batch_max_latency=2,
+            batch_max_messages=1000,
+            enable_message_ordering=enable_message_ordering)
     elif item_exporter_type == ItemExporterType.CONSOLE:
         item_exporter = ConsoleItemExporter()
     else:
