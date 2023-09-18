@@ -104,7 +104,7 @@ class SuiTransactionBlockEffectsMapper(object):
 
     def effects_to_dict(self, effects):
         return {
-            "type": "effects",
+            "type": "effect",
             "checkpoint_number": effects.checkpoint_number,
             "transaction_digest": effects.transaction_digest,
             "timestamp_ms": effects.timestamp_ms,

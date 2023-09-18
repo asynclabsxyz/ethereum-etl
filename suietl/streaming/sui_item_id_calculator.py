@@ -39,7 +39,7 @@ class SuiItemIdCalculator:
         elif item_type == 'event' and item.get('id') is not None and item.get('id').get('tx_digest') \
                 and item.get('id').get('event_seq') is not None:
             return concat(item_type, item.get('id').get('tx_digest'), item.get('id').get('event_seq'))
-        elif item_type == 'effects' and item.get('transaction_digest') is not None:
+        elif item_type == 'effect' and item.get('transaction_digest') is not None:
             return concat(item_type, item.get('transaction_digest'))
 
         logging.warning('item_id for item {} is None'.format(json.dumps(item)))

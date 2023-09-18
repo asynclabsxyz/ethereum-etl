@@ -38,7 +38,7 @@ def build_checkpoint_bundles(items):
             checkpoints[item.get("sequence_number")].append(item)
         elif item_type == "transaction":
             transactions[item.get("checkpoint_number")].append(item)
-        elif item_type == "effects":
+        elif item_type == "effect":
             effects[item.get("checkpoint_number")].append(item)
         elif item_type == "event":
             events[item.get("checkpoint_number")].append(item)
@@ -55,7 +55,7 @@ def build_checkpoint_bundles(items):
             {
                 "checkpoint": checkpoints[checkpoint_number][0],
                 "transactions": transactions[checkpoint_number],
-                "effects": effects[checkpoint_number],
+                "effect": effects[checkpoint_number],
                 "events": events[checkpoint_number],
             }
         )

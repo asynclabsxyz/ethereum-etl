@@ -1,12 +1,12 @@
 class EntityType:
     CHECKPOINT = "checkpoint"
     EVENT = "event"
-    EFFECTS = "effects"
+    EFFECT = "effect"
     TRANSACTION = "transaction"
 
     ALL_FOR_STREAMING = [
         CHECKPOINT,
         EVENT,
-        EFFECTS,
+        EFFECT,
         TRANSACTION,
     ]

@@ -93,7 +93,7 @@ class SuiStreamerAdapter:
     def _export_transaction_blocks(self, checkpoint):
         transactions_item_exporter = InMemoryItemExporter(
             # naman, todo, add more
-            item_types=["transaction", "effects", "event"]
+            item_types=["transaction", "effect", "event"]
         )
         transactions_job = ExportTransactionsJob(
             transaction_hashes=checkpoint["transactions"],
@@ -104,7 +104,7 @@ class SuiStreamerAdapter:
         )
         transactions_job.run()
         transactions = transactions_item_exporter.get_items("transaction")
-        effects = transactions_item_exporter.get_items("effects")
+        effects = transactions_item_exporter.get_items("effect")
         events = transactions_item_exporter.get_items("event")
         return transactions, effects, events
 
