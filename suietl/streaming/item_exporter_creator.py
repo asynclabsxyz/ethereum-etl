@@ -55,6 +55,8 @@ def create_item_exporter(output):
             item_type_to_topic_mapping={
                 'checkpoint': output + '.checkpoints',
                 'transaction': output + '.transactions',
+                'event': output + '.events',
+                'effects': output + '.effectss',
             },
             message_attributes=('item_id', 'item_timestamp'),
             batch_max_bytes=1024 * 1024 * 5,
