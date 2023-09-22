@@ -36,7 +36,7 @@ class EthTransactionMapper(object):
         transaction.transaction_index = hex_to_dec(json_dict.get('transactionIndex'))
         transaction.from_address = to_normalized_address(json_dict.get('from'))
         transaction.to_address = to_normalized_address(json_dict.get('to'))
-        transaction.value = hex_to_dec(json_dict.get('value'))
+        transaction.value = str(hex_to_dec(json_dict.get('value')))
         transaction.gas = hex_to_dec(json_dict.get('gas'))
         transaction.gas_price = hex_to_dec(json_dict.get('gasPrice'))
         transaction.input = json_dict.get('input')
