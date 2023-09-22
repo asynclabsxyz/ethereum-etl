@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
+from datetime import datetime
 from ethereumetl.domain.block import EthBlock
 from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
 from ethereumetl.utils import hex_to_dec, to_normalized_address
@@ -51,7 +51,7 @@ class EthBlockMapper(object):
         block.extra_data = json_dict.get('extraData')
         block.gas_limit = hex_to_dec(json_dict.get('gasLimit'))
         block.gas_used = hex_to_dec(json_dict.get('gasUsed'))
-        block.timestamp = hex_to_dec(json_dict.get('timestamp'))
+        block.timestamp = epoch_seconds_to_rfc3339(hex_to_dec(json_dict.get('timestamp')))
         block.base_fee_per_gas = hex_to_dec(json_dict.get('baseFeePerGas'))
         block.withdrawals_root = json_dict.get('withdrawalsRoot')
 
@@ -105,3 +105,6 @@ class EthBlockMapper(object):
             'withdrawals_root': block.withdrawals_root,
             'withdrawals': block.withdrawals,
         }
+    
+def epoch_seconds_to_rfc3339(timestamp):
+    return datetime.utcfromtimestamp(int(timestamp)).isoformat() + 'Z'
