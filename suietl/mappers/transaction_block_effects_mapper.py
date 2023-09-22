@@ -22,6 +22,7 @@
 
 
 from suietl.domain.transaction_block_effects import SuiTransactionBlockEffects
+from suietl.utils import epoch_milliseconds_to_rfc3339
 from ethereumetl.utils import to_int_or_none
 
 
@@ -31,6 +32,7 @@ class SuiTransactionBlockEffectsMapper(object):
         effects.checkpoint_number = to_int_or_none(json_dict.get("checkpoint"))
         effects.transaction_digest = json_dict.get("digest")
         effects.timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        effects.transaction_timestamp = epoch_milliseconds_to_rfc3339(effects.timestamp_ms)
 
         json_effects_dict = json_dict.get("effects")
         effects.status = json_effects_dict.get("status")
@@ -131,6 +133,7 @@ class SuiTransactionBlockEffectsMapper(object):
             "checkpoint_number": effects.checkpoint_number,
             "transaction_digest": effects.transaction_digest,
             "timestamp_ms": effects.timestamp_ms,
+            "transaction_timestamp": effects.transaction_timestamp,
             "status": effects.status,
             "executed_epoch": effects.executed_epoch,
             "gas_used": effects.gas_used,

@@ -30,5 +30,6 @@ class SuiTransaction(object):
         self.gas_data = {}
         self.object_changes = []
         self.timestamp_ms = None
+        self.timestamp = None
         self.transaction = None
         self.tx_signatures = []

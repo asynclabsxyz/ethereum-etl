@@ -32,5 +32,6 @@ class SuiCheckpoint(object):
         self.previous_digest = None
         self.sequence_number = None
         self.timestamp_ms = None
+        self.timestamp = None
         self.transactions = []
         self.validator_signature = None

@@ -22,6 +22,7 @@
 
 
 from suietl.domain.transaction import SuiTransaction
+from suietl.utils import epoch_milliseconds_to_rfc3339
 from ethereumetl.utils import to_int_or_none
 
 
@@ -31,6 +32,7 @@ class SuiTransactionMapper(object):
         transaction.checkpoint_number = to_int_or_none(json_dict.get("checkpoint"))
         transaction.digest = json_dict.get("digest")
         transaction.timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        transaction.timestamp = epoch_milliseconds_to_rfc3339(transaction.timestamp_ms)
         transaction.balance_changes = self.parse_balance_changes(json_dict.get("balanceChanges", []))
         transaction.object_changes = self.parse_object_changes(json_dict.get("objectChanges", []))
 
@@ -159,6 +161,7 @@ class SuiTransactionMapper(object):
             "sender": transaction.sender,
             "gas_data": transaction.gas_data,
             "timestamp_ms": transaction.timestamp_ms,
+            "timestamp": transaction.timestamp,
             "transaction": transaction.transaction,
             "tx_signatures": transaction.tx_signatures,
             "balance_changes": transaction.balance_changes,
