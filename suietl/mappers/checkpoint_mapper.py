@@ -22,6 +22,7 @@
 
 
 from suietl.domain.checkpoint import SuiCheckpoint
+from suietl.utils import epoch_milliseconds_to_rfc3339
 from ethereumetl.utils import to_int_or_none
 
 
@@ -47,6 +48,7 @@ class SuiCheckpointMapper(object):
         checkpoint.previous_digest = json_dict.get("previousDigest")
         checkpoint.sequence_number = to_int_or_none(json_dict.get("sequenceNumber"))
         checkpoint.timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        checkpoint.timestamp = epoch_milliseconds_to_rfc3339(checkpoint.timestamp_ms)
         checkpoint.transactions = json_dict.get("transactions")
         checkpoint.validator_signature = json_dict.get("validatorSignature")
 
@@ -98,6 +100,7 @@ class SuiCheckpointMapper(object):
             "previous_digest": checkpoint.previous_digest,
             "sequence_number": checkpoint.sequence_number,
             "timestamp_ms": checkpoint.timestamp_ms,
+            "timestamp": checkpoint.timestamp,
             "transactions": checkpoint.transactions,
             "validator_signature": checkpoint.validator_signature,
         }

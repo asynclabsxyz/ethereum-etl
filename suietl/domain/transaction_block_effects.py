@@ -26,6 +26,7 @@ class SuiTransactionBlockEffects(object):
         self.checkpoint_number = None
         self.transaction_digest = None
         self.timestamp_ms = None
+        self.transaction_timestamp = None
         self.status = None
         self.executed_epoch = None
         self.gas_used = None

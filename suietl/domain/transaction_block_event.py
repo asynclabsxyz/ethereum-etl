@@ -26,6 +26,7 @@ class SuiTransactionBlockEvent(object):
         self.checkpoint_number = None
         self.transaction_digest = None
         self.timestamp_ms = None
+        self.transaction_timestamp = None
         self.id = None
         self.package_id = None
         self.transaction_module = None

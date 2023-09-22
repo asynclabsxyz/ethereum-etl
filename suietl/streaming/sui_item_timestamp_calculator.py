@@ -29,15 +29,14 @@ class SuiItemTimestampCalculator:
     def calculate(self, item):
         if item is None or not isinstance(item, dict):
             return None
+        
+        item_type = item.get('type')
 
-        if item.get('timestamp_ms') is not None:
-            return epoch_milliseconds_to_rfc3339(item.get('timestamp_ms'))
+        if item_type in ('checkpoint', 'transaction')  and item.get('timestamp') is not None:
+            return item.get('timestamp')
+        elif item.get('transaction_timestamp') is not None:
+            return item.get('transaction_timestamp')
 
         logging.warning('item_timestamp for item {} is None'.format(json.dumps(item)))
 
         return None
-
-
-def epoch_milliseconds_to_rfc3339(timestamp):
-    t = timestamp / 1000.0
-    return datetime.utcfromtimestamp(int(t)).isoformat() + 'Z'

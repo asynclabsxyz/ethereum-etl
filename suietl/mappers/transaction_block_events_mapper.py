@@ -22,6 +22,7 @@
 
 
 from suietl.domain.transaction_block_event import SuiTransactionBlockEvent
+from suietl.utils import epoch_milliseconds_to_rfc3339
 from ethereumetl.utils import to_int_or_none
 
 
@@ -30,6 +31,7 @@ class SuiTransactionBlockEventsMapper(object):
         checkpoint_number = to_int_or_none(json_dict.get("checkpoint"))
         transaction_digest = json_dict.get("digest")
         timestamp_ms = to_int_or_none(json_dict.get("timestampMs"))
+        transaction_timestamp = epoch_milliseconds_to_rfc3339(timestamp_ms)
 
         json_events_dict = json_dict.get("events", [])
         events = []
@@ -38,6 +40,7 @@ class SuiTransactionBlockEventsMapper(object):
             event.checkpoint_number = checkpoint_number
             event.transaction_digest = transaction_digest
             event.timestamp_ms = timestamp_ms
+            event.transaction_timestamp = transaction_timestamp
             event.id = self.parse_event_id(json_event_dict.get("id"))
             event.package_id = json_event_dict.get("packageId")
             event.transaction_module = json_event_dict.get("transactionModule")
@@ -69,6 +72,7 @@ class SuiTransactionBlockEventsMapper(object):
             "checkpoint_number": event.checkpoint_number,
             "transaction_digest": event.transaction_digest,
             "timestamp_ms": event.timestamp_ms,
+            "transaction_timestamp": event.transaction_timestamp,
             "id": event.id,
             "package_id": event.package_id,
             "transaction_module": event.transaction_module,

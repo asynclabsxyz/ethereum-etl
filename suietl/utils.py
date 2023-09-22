@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 
+from datetime import datetime
 import itertools
 import warnings
 
@@ -153,3 +154,8 @@ def check_classic_provider_uri(chain, provider_uri):
         )
         return "https://ethereumclassic.network"
     return provider_uri
+
+
+def epoch_milliseconds_to_rfc3339(timestamp):
+    t = timestamp / 1000.0
+    return datetime.utcfromtimestamp(int(t)).isoformat() + 'Z'
