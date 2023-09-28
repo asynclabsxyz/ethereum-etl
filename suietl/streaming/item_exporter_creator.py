@@ -31,7 +31,7 @@ def create_item_exporter(output):
                 'checkpoint': output + '.checkpoints',
                 'transaction': output + '.transactions',
                 'event': output + '.events',
-                'effect': output + '.effects',
+                'object': output + '.objects',
             },
             message_attributes=('item_id', 'item_timestamp'),
             batch_max_bytes=1024 * 1024 * 5,
