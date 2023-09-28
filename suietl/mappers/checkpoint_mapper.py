@@ -3,10 +3,7 @@ from suietl.utils import epoch_milliseconds_to_rfc3339
 from ethereumetl.utils import to_int_or_none
 
 
-# naman: see rust sdk to get the object structure
 # https://github.com/MystenLabs/sui/blob/main/crates/sui-json-rpc-types/src/sui_checkpoint.rs
-
-
 # TODO, naman: I don't know if we need to normalize addresses in SUI
 class SuiCheckpointMapper(object):
     def json_dict_to_block(self, json_dict):
@@ -32,12 +29,10 @@ class SuiCheckpointMapper(object):
             checkpoint.epoch_commitments = self.parse_checkpoint_commitments(endOfEpochData.get("epochCommitments", []))
         
         summary = json_dict.get("epochRollingGasCostSummary")
-        checkpoint.computation_cost: to_int_or_none(summary.get("computationCost"))
-        checkpoint.storage_cost: to_int_or_none(summary.get("storageCost"))
-        checkpoint.storage_rebate: to_int_or_none(summary.get("storageRebate"))
-        checkpoint.non_refundable_storage_fee: to_int_or_none(
-            summary.get("nonRefunableStorageFee")
-        )
+        checkpoint.computation_cost: summary.get("computationCost")
+        checkpoint.storage_cost: summary.get("storageCost")
+        checkpoint.storage_rebate: summary.get("storageRebate")
+        checkpoint.non_refundable_storage_fee: summary.get("nonRefunableStorageFee")
         
         return checkpoint
 

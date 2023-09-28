@@ -40,11 +40,6 @@ def build_checkpoint_bundles(items):
 
     return checkpoint_bundles
 
-
-# TODO naman, do we build items on a transaction block level or checkpoint level?
-# if it is on checkpoint, it can have multiple transactions that might cross partition time boundary.
-# if it is on transaction block, then where does checkpoint go?
-# picked checkpoint level for now
 class GcsItemExporter:
     def __init__(
         self,
