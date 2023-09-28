@@ -34,16 +34,14 @@ class SuiStreamerAdapter:
         self.item_exporter.open()
 
     def get_current_block_number(self):
-        # (naman) SUI blocks don't have a block number, so we use checkpoints.
+        # SUI blocks don't have a block number, so we use checkpoints.
         rpc = generate_sui_get_latest_checkpoint_sequence_number()
         response = self.batch_http_provider.make_batch_request(json.dumps(rpc))
         return int(rpc_response_to_result(response))
 
     def export_all(self, start_block, end_block):
-        # (naman) Since we use checkpoints, each checkpoint will have multiple blocks.
+        # Since we use checkpoints, each checkpoint will have multiple blocks.
         # We make sure to not fetch more than one checkpoint at a time.
-        # If needed, we might have to also change start to end logic such that
-        # it iterates on a checkpoint as well.
         assert start_block == end_block
 
         # Export checkpoints
@@ -92,7 +90,6 @@ class SuiStreamerAdapter:
 
     def _export_transaction_blocks(self, checkpoint):
         transactions_item_exporter = InMemoryItemExporter(
-            # naman, todo, add more
             item_types=["transaction", "object", "event"]
         )
         transactions_job = ExportTransactionsJob(

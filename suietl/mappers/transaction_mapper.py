@@ -28,12 +28,10 @@ class SuiTransactionMapper(object):
         transaction.transaction_dependencies = json_effects_dict.get("dependencies")
 
         gas_used = json_effects_dict.get("gasUsed")
-        transaction.computation_cost: to_int_or_none(gas_used.get("computationCost"))
-        transaction.storage_cost: to_int_or_none(gas_used.get("storageCost"))
-        transaction.storage_rebate: to_int_or_none(gas_used.get("storageRebate"))
-        transaction.non_refundable_storage_fee: to_int_or_none(
-            gas_used.get("nonRefundableStorageFee")
-        )
+        transaction.computation_cost: gas_used.get("computationCost")
+        transaction.storage_cost: gas_used.get("storageCost")
+        transaction.storage_rebate: gas_used.get("storageRebate")
+        transaction.non_refundable_storage_fee: gas_used.get("nonRefundableStorageFee")
     
         gas_object = json_effects_dict.get("gasObject").get("reference")
         transaction.gas_object_id = gas_object.get("object_id")
@@ -52,8 +50,8 @@ class SuiTransactionMapper(object):
 
         gas_data = json_transaction_data_dict.get("gasData")
         transaction.gas_payments = self.parse_gas_payments(gas_data.get("payment"))
-        transaction.gas_price = to_int_or_none(gas_data.get("price"))
-        transaction.gas_budget = to_int_or_none(gas_data.get("budget"))
+        transaction.gas_price = gas_data.get("price")
+        transaction.gas_budget = gas_data.get("budget")
 
         return transaction
     

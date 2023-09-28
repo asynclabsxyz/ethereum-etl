@@ -7,7 +7,6 @@ from ethereumetl.streaming.item_exporter_creator import (
 )
 
 
-# naman, We need this file because we want to use a modified version of gcs item exporter.
 def create_item_exporters(outputs):
     split_outputs = (
         [output.strip() for output in outputs.split(",")] if outputs else ["console"]
@@ -23,8 +22,6 @@ def create_item_exporter(output):
         from suietl.jobs.exporters.gcs_item_exporter import GcsItemExporter
 
         bucket, path = get_bucket_and_path_from_gcs_output(output)
-        # naman, todo, this needs to be custom too because gcs item exporter has a lot
-        # of eth primitives built in
         item_exporter = GcsItemExporter(bucket=bucket, path=path)
     elif item_exporter_type == ItemExporterType.PUBSUB:
         from blockchainetl.jobs.exporters.google_pubsub_item_exporter import GooglePubSubItemExporter
