@@ -29,11 +29,11 @@ class SuiCheckpointMapper(object):
             checkpoint.epoch_commitments = self.parse_checkpoint_commitments(endOfEpochData.get("epochCommitments", []))
         
         summary = json_dict.get("epochRollingGasCostSummary")
-        checkpoint.computation_cost: summary.get("computationCost")
-        checkpoint.storage_cost: summary.get("storageCost")
-        checkpoint.storage_rebate: summary.get("storageRebate")
-        checkpoint.non_refundable_storage_fee: summary.get("nonRefunableStorageFee")
-        
+        checkpoint.computation_cost = summary.get("computationCost")
+        checkpoint.storage_cost = summary.get("storageCost")
+        checkpoint.storage_rebate = summary.get("storageRebate")
+        checkpoint.non_refundable_storage_fee = summary.get("nonRefundableStorageFee")
+
         return checkpoint
 
     def parse_checkpoint_commitments(self, checkpointCommitments):
