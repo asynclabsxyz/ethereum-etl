@@ -52,9 +52,9 @@ class SuiStreamerAdapter:
             checkpoint = self._export_checkpoint(start_block)
 
         # Export transaction blocks and events
-        transactions, effects, events = [], [], []
+        transactions, objects, events = [], [], []
         if self._should_export(EntityType.TRANSACTION):
-            transactions, effects, events = self._export_transaction_blocks(checkpoint)
+            transactions, objects, events = self._export_transaction_blocks(checkpoint)
 
         # enriched_blocks = blocks if EntityType.BLOCK in self.entity_types else []
         # enriched_transactions = (
@@ -67,9 +67,9 @@ class SuiStreamerAdapter:
 
         all_items = (
             sort_by([checkpoint], ("sequence_number",))
-            + sort_by(transactions, ("checkpoint_number", "digest"))
-            + sort_by(effects, ("checkpoint_number", "digest"))
-            + sort_by(events, ("checkpoint_number", "digest", "id.event_seq"))
+            + sort_by(transactions, ("checkpoint_sequence_number", "digest"))
+            + sort_by(objects, ("checkpoint_sequence_number", "object_id", "version"))
+            + sort_by(events, ("checkpoint_sequence_number", "transaction_digest", "event_seq"))
         )
         
         self.calculate_item_ids(all_items)
@@ -93,7 +93,7 @@ class SuiStreamerAdapter:
     def _export_transaction_blocks(self, checkpoint):
         transactions_item_exporter = InMemoryItemExporter(
             # naman, todo, add more
-            item_types=["transaction", "effect", "event"]
+            item_types=["transaction", "object", "event"]
         )
         transactions_job = ExportTransactionsJob(
             transaction_hashes=checkpoint["transactions"],
@@ -104,9 +104,9 @@ class SuiStreamerAdapter:
         )
         transactions_job.run()
         transactions = transactions_item_exporter.get_items("transaction")
-        effects = transactions_item_exporter.get_items("effect")
+        objects = transactions_item_exporter.get_items("object")
         events = transactions_item_exporter.get_items("event")
-        return transactions, effects, events
+        return transactions, objects, events
 
     def _should_export(self, entity_type):
         if entity_type == EntityType.CHECKPOINT:
