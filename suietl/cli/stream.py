@@ -7,6 +7,7 @@ from ethereumetl.providers.auto import get_provider_from_uri
 
 from suietl.enumeration.entity_type import EntityType
 from suietl.streaming.item_exporter_creator import create_item_exporters
+from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 
 @click.command(context_settings=dict(help_option_names=["-h", "--help"]))
@@ -99,7 +100,7 @@ def stream(
     period_seconds=10,
     batch_size=2,
     block_batch_size=1,
-    max_workers=1,
+    max_workers=2,
     log_file=None,
     pid_file=None,
 ):
@@ -116,16 +117,13 @@ def stream(
     logging.info("Using " + provider_uri)
 
     streamer_adapter = SuiStreamerAdapter(
-        # naman: We aren't using web3 client and I'm not sure how to make it thread safe without. I'll set it to one worker.
-        # I'll keep it simple for now and directly pass the http provider as it is the same json rpc request/response format.
-        batch_http_provider=get_provider_from_uri(provider_uri, batch=True),
+        batch_http_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporters(output),
-        # naman: Setting batch size to 1 because sui calls to ANKR fails for batch calls with error
+        # Setting batch size to 1 because sui calls fails for batch calls with error
         # {'code': -32005, 'message': 'Batched requests are not supported by this server'}, 'id': None}
         # batch_size=batch_size,
-        # max_workers=max_workers,
         batch_size=1,
-        max_workers=1,
+        max_workers=max_workers,
         entity_types=entity_types,
     )
     streamer = Streamer(
