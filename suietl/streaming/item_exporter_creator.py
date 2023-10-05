@@ -35,7 +35,7 @@ def create_item_exporter(output):
             },
             message_attributes=('item_id', 'item_timestamp'),
             batch_max_bytes=1024 * 1024 * 5,
-            batch_max_latency=2,
+            batch_max_latency=0.03, # 30ms. Look at metrics to see whether to reduce it further.
             batch_max_messages=1000,
             enable_message_ordering=enable_message_ordering)
     elif item_exporter_type == ItemExporterType.CONSOLE:
