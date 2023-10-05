@@ -14,11 +14,11 @@ def generate_sui_get_latest_checkpoint_sequence_number():
     )
 
 
-def generate_get_transaction_block_by_number_json_rpc(transaction_hash):
+def generate_multi_get_transaction_block_by_number_json_rpc(transaction_hashes):
     return generate_json_rpc(
-        method="sui_getTransactionBlock",
+        method="sui_multiGetTransactionBlocks",
         params=[
-            transaction_hash,
+            transaction_hashes,
             {
                 "showInput": True,
                 "showRawInput": False,

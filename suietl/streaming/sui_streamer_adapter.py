@@ -94,7 +94,6 @@ class SuiStreamerAdapter:
         )
         transactions_job = ExportTransactionsJob(
             transaction_hashes=checkpoint["transactions"],
-            batch_size=self.batch_size,
             batch_http_provider=self.batch_http_provider,
             max_workers=self.max_workers,
             item_exporter=transactions_item_exporter,
